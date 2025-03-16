@@ -210,6 +210,51 @@ sets <- list(
 ggVennDiagram(sets)
 
 
+# 将非数值型列转换为数值型
+module_expression <- data.frame(lapply(module_expression, function(x) as.numeric(as.character(x))))
+# 检查是否存在非有限值
+sum(!is.finite(as.matrix(module_expression)))
+
+# 检查是否存在全 0 的行
+zero_rows <- rowSums(module_expression == 0) == ncol(module_expression)
+print(sum(zero_rows))  # 输出全 0 的行数
+
+# 检查是否存在全 0 的列
+zero_cols <- colSums(module_expression == 0) == nrow(module_expression)
+print(sum(zero_cols))  # 输出全 0 的列数
+
+# 检查是否存在常数的行
+constant_rows <- apply(module_expression, 1, function(x) length(unique(x)) == 1)
+print(sum(constant_rows))  # 输出常数的行数
+
+# 检查是否存在常数的列
+constant_cols <- apply(module_expression, 2, function(x) length(unique(x)) == 1)
+print(sum(constant_cols))  # 输出常数的列数
+
+# 删除全 0 或常数的行
+module_expression <- module_expression[rowSums(module_expression != 0) > 0, ]
+module_expression <- module_expression[apply(module_expression, 1, function(x) length(unique(x)) > 1), ]
+
+# 删除全 0 或常数的列
+module_expression <- module_expression[, colSums(module_expression != 0) > 0]
+module_expression <- module_expression[, apply(module_expression, 2, function(x) length(unique(x)) > 1)]
+
+
+
+
+
+
+
+
+
+
+
+
+# 处理非有限值
+module_expression[!is.finite(as.matrix(module_expression))] <- 0
+library(pheatmap)
+pheatmap(module_expression, cluster_rows = TRUE, cluster_cols = TRUE, 
+         scale = "row", show_rownames = FALSE, show_colnames = FALSE)
 
 
 
